@@ -12,112 +12,84 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminServiceController;
 use App\Http\Controllers\AdminOrderController;
 
-// Home
+// ==========================================
+// PUBLIC ROUTES (Guest & All)
+// ==========================================
 Route::get('/', [HomeController::class, 'index']);
 
 // Login
 Route::get('/login', [AuthController::class, 'showLogin']);
 Route::post('/login', [AuthController::class, 'webLogin']);
 
-//Register
+// Register
 Route::get('/register', [AuthController::class, 'showRegister']);
 Route::post('/register', [AuthController::class, 'webRegister']);
+
 // Logout
 Route::post('/logout', [AuthController::class, 'webLogout']);
 
-// Explore Services
-Route::get('/services', [ServiceController::class, 'webIndex']);
 
-//pemilik jasa harus bisa  melihat siapa yang order jasanya
-Route::get('/orders/incoming', [OrderController::class, 'webIncoming']);
+// ==========================================
+// USER ROUTES (Wajib Login / role: user, admin)
+// ==========================================
+Route::middleware(['role:user,admin'])->group(function () {
+    // Explore / Services
+    Route::get('/explore', [ServiceController::class, 'webIndex']);
+    Route::get('/services', [ServiceController::class, 'webIndex']);
+    Route::get('/services/create', [ServiceController::class, 'webCreate']);
+    Route::post('/services', [ServiceController::class, 'webStore']);
+    Route::get('/services/{id}/edit', [ServiceController::class, 'webEdit']);
+    Route::put('/services/{id}', [ServiceController::class, 'webUpdate']);
+    Route::delete('/services/{id}', [ServiceController::class, 'webDestroy']);
+    Route::get('/services/{id}', [ServiceController::class, 'webShow']);
+    Route::get('/services/{id}/order', [OrderController::class, 'webCreate']);
+    Route::post('/services/{id}/order', [OrderController::class, 'webStore']);
 
-//detail order masuk
-Route::get('/orders/incoming/{id}', [OrderController::class, 'webIncomingShow']);
+    // My Services
+    Route::get('/my-services', [ServiceController::class, 'myService']);
 
-//terima /tolak order
-Route::post(
-    '/orders/incoming/{id}/status',
-    [OrderController::class, 'webUpdateStatus']
-);
+    // Orders (Incoming, History, Create, Show, Cancel, Status)
+    Route::get('/orders/incoming', [OrderController::class, 'webIncoming']);
+    Route::get('/orders/incoming/{id}', [OrderController::class, 'webIncomingShow']);
+    Route::post('/orders/incoming/{id}/status', [OrderController::class, 'webUpdateStatus']);
+    Route::post('/orders/incoming/{id}/start', [OrderController::class, 'webStartOrder']);
+    Route::post('/orders/incoming/{id}/complete', [OrderController::class, 'webCompleteOrder']);
+    Route::get('/orders/history', [OrderController::class, 'webHistory']);
+    Route::get('/orders', [OrderController::class, 'webIndex']);
+    Route::get('/orders/{id}', [OrderController::class, 'webShow']);
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'webCancel']);
 
-//mulai pengerjaan
-Route::post('/orders/incoming/{id}/start', [OrderController::class, 'webStartOrder']);
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'webShow']);
+    Route::get('/profile/edit', [ProfileController::class, 'webEdit']);
+    Route::put('/profile/edit', [ProfileController::class, 'webUpdate']);
+});
 
-//selesaikan order
-Route::post('/orders/incoming/{id}/complete', [OrderController::class, 'webCompleteOrder']);
 
-//riwayat order
-Route::get('/orders/history', [OrderController::class, 'webHistory']);
+// ==========================================
+// ADMIN ROUTES (Wajib Login & role: admin)
+// ==========================================
+Route::middleware(['role:admin'])->group(function () {
+    // Categories CRUD
+    Route::get('/categories', [CategoryController::class, 'webIndex']);
+    Route::get('/categories/create', [CategoryController::class, 'webCreate']);
+    Route::post('/categories', [CategoryController::class, 'webStore']);
+    Route::get('/categories/{id}/edit', [CategoryController::class, 'webEdit']);
+    Route::put('/categories/{id}', [CategoryController::class, 'webUpdate']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'webDestroy']);
 
-//jasa saya
-Route::get('/my-services', [ServiceController::class, 'myService']);
+    // Admin Dashboard & Management
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
 
-//buat jasa
-Route::get('/services/create', [ServiceController::class, 'webCreate']);
-Route::post('services', [ServiceController::class, 'webStore']);
+    // Admin - Kelola User
+    Route::get('/admin/users', [AdminUserController::class, 'index']);
+    Route::delete('/admin/users/{id}/delete', [AdminUserController::class, 'destroy']);
 
-//edit jasa
-Route::get('/services/{id}/edit', [ServiceController::class, 'webEdit']);
-Route::put('/services/{id}', [ServiceController::class, 'webUpdate']);
+    // Admin - Kelola Jasa
+    Route::get('/admin/services', [AdminServiceController::class, 'index']);
+    Route::delete('/admin/services/{id}/delete', [AdminServiceController::class, 'destroy']);
 
-//hapus jasa
-Route::delete('services/{id}', [ServiceController::class, 'webDestroy']);
-// Detail Jasa
-Route::get('/services/{id}', [ServiceController::class, 'webShow']);
-
-// Order Jasa
-Route::get('/services/{id}/order', [OrderController::class, 'webCreate']);
-Route::post('/services/{id}/order', [OrderController::class, 'webStore']);
-
-// Order Saya
-Route::get('/orders', [OrderController::class, 'webIndex']);
-
-// Detail Order
-Route::get('/orders/{id}', [OrderController::class, 'webShow']);
-
-// Cancel Order
-Route::post('/orders/{id}/cancel', [OrderController::class, 'webCancel']);
-
-//profil
-Route::get('/profile', [ProfileController::class, 'webShow']);
-
-//edit profile
-Route::get('/profile/edit', [ProfileController::class, 'webEdit']);
-
-//update profile
-Route::put('/profile/edit', [ProfileController::class, 'webUpdate']);
-
-// CRUD kategori hanya admin
-Route::get('/categories', [CategoryController::class, 'webIndex']);
-
-Route::get('/categories/create', [CategoryController::class, 'webCreate']);
-
-Route::post('/categories', [CategoryController::class, 'webStore']);
-
-Route::get('/categories/{id}/edit', [CategoryController::class, 'webEdit']);
-
-Route::put('/categories/{id}', [CategoryController::class, 'webUpdate']);
-
-Route::delete('/categories/{id}', [CategoryController::class, 'webDestroy']);
-
-//dashboar admin
-Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
-    ->middleware('role:admin');
-
-//admin - kelola user
-Route::get('/admin/users', [AdminUserController::class, 'index'])
-    ->middleware('role:admin');
-Route::delete('/admin/users/{id}/delete', [AdminUserController::class, 'destroy'])
-    ->middleware('role:admin');
-
-//admin - kelola jasa
-Route::get('/admin/services', [AdminServiceController::class, 'index'])
-    ->middleware('role:admin');
-Route::delete('/admin/services/{id}/delete', [AdminServiceController::class, 'destroy'])
-    ->middleware('role:admin');
-
-//admin - kelola orders
-Route::get('/admin/orders', [AdminOrderController::class, 'index'])
-    ->middleware('role:admin');
-Route::get('/admin/orders/{id}', [AdminOrderController::class, 'show'])
-    ->middleware('role:admin');
+    // Admin - Kelola Orders
+    Route::get('/admin/orders', [AdminOrderController::class, 'index']);
+    Route::get('/admin/orders/{id}', [AdminOrderController::class, 'show']);
+});

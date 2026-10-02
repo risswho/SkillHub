@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->string('thumbnail')->nullable()->after('description');
-        });
+        if (!Schema::hasColumn('services', 'thumbnail')) {
+            Schema::table('services', function (Blueprint $table) {
+                $table->string('thumbnail')->nullable()->after('description');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->dropCrolumn('thumbnail');
-        });
+        if (Schema::hasColumn('services', 'thumbnail')) {
+            Schema::table('services', function (Blueprint $table) {
+                $table->dropColumn('thumbnail');
+            });
+        }
     }
 };
