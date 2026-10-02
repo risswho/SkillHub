@@ -41,6 +41,7 @@ Route::middleware(['role:user,admin'])->group(function () {
     Route::get('/services/{id}/edit', [ServiceController::class, 'webEdit']);
     Route::put('/services/{id}', [ServiceController::class, 'webUpdate']);
     Route::delete('/services/{id}', [ServiceController::class, 'webDestroy']);
+    Route::get('/services/{id}/whatsapp', [ServiceController::class, 'webContactWhatsapp']);
     Route::get('/services/{id}', [ServiceController::class, 'webShow']);
     Route::get('/services/{id}/order', [OrderController::class, 'webCreate']);
     Route::post('/services/{id}/order', [OrderController::class, 'webStore']);

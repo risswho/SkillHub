@@ -324,6 +324,14 @@
 
                 <div class="action-buttons">
                     @if ($service->status === 'active')
+
+                    <a
+                        href="{{ url('/services/' . $service->id . '/whatsapp') }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Hubungi Penyedia via WhatsApp
+                    </a>
                         <a href="{{ url('/services/' . $service->id . '/order') }}" class="btn btn-primary btn-block">
                             Pesan Jasa Sekarang
                         </a>

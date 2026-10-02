@@ -369,4 +369,35 @@ class ServiceController extends Controller
         return redirect('/my-services')
             ->with('success', 'Jasa berhasil dihapus');
     }
+
+    public function webContactWhatsapp($id)
+    {
+        $service = Service::with('user')->find($id);
+
+        if (!$service) {
+            abort(404);
+        }
+
+        $whatsapp = $service->user->whatsapp;
+
+        if (!$whatsapp) {
+            return back()->withErrors([
+                'whatsapp' => 'Penyedia jasa belum menambahkan nomor whatsapp'
+            ]);
+        }
+
+        //bersihkan nomor dari spasi, +, -, (), dll
+        $phone = preg_replace('/\D+/','', $whatsapp);
+
+        // kalau penyedia menyimpan 08xxxxxx,ubah menjadi 62xxxxxx
+        if (str_starts_with($phone, '0')) {
+            $phone = '62' . substr($phone, 1);
+        }
+
+        $message = "Halo {$service->user->username}, saya tertarik dengan jasa *{$service->title}* di skillHub";
+
+        $url = 'https://wa.me/' . $phone . '?text=' . rawurldecode($message);
+
+        return redirect()->away($url);
+    }
 }

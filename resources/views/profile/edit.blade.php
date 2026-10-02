@@ -213,6 +213,32 @@
                 @enderror
             </div>
 
+            {{-- Input: whatsapp --}}
+            <div class="srvform-group">
+                <label for="whatsapp" class="srvform-label">
+                    Nomor WhatsApp
+                </label>
+
+                <input
+                    type="text"
+                    id="whatsapp"
+                    name="whatsapp"
+                    class="srvform-control @error('whatsapp') is-invalid @enderror"
+                    value="{{ old('whatsapp', $user->whatsapp) }}"
+                    placeholder="081234567890"
+                >
+
+                <small class="text-muted">
+                    Nomor ini akan digunakan pembeli untuk menghubungi kamu.
+                </small>
+
+                @error('whatsapp')
+                    <span class="srvform-error-msg">
+                        {{ $message }}
+                    </span>
+                @enderror
+            </div>
+
             {{-- Input: Bio --}}
             <div class="srvform-group">
                 <label for="bio" class="srvform-label">Bio Singkat</label>

@@ -22,6 +22,12 @@ class ProfileController extends Controller
 
         $request->validate([
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'whatsapp' => [
+                'nullable',
+                'string',
+                'max:20',
+                'regex:/^[0-9+\-\s()]+$/',
+            ],
             'bio' => 'nullable|string',
             'skill' => 'nullable|string',
             'school' => 'nullable|string|max:255',
@@ -29,6 +35,7 @@ class ProfileController extends Controller
 
         $user->update([
             'username' => $request->username,
+            'whatsapp' => $request->whatsapp,
             'bio' => $request->bio,
             'skill' => $request->skill,
             'school' => $request->school,
@@ -41,10 +48,10 @@ class ProfileController extends Controller
         ]);
     }
 
-    //front end profile
+    // Frontend profile
     public function webShow()
     {
-        $user =\App\Models\User::find(session('user_id'));
+        $user = User::find(session('user_id'));
 
         if (!$user) {
             return redirect('/login');
@@ -53,18 +60,21 @@ class ProfileController extends Controller
         return view('profile.show', compact('user'));
     }
 
-    //frontend halaman edit profile
-    public function webEdit() {
+    // Frontend halaman edit profile
+    public function webEdit()
+    {
         $user = User::find(session('user_id'));
 
         if (!$user) {
             abort(404);
         }
+
         return view('profile.edit', compact('user'));
     }
 
-    //proses update profile
-    public function webUpdate(Request $request) {
+    // Proses update profile
+    public function webUpdate(Request $request)
+    {
         $user = User::find(session('user_id'));
 
         if (!$user) {
@@ -73,6 +83,12 @@ class ProfileController extends Controller
 
         $request->validate([
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'whatsapp' => [
+                'nullable',
+                'string',
+                'max:20',
+                'regex:/^[0-9+\-\s()]+$/',
+            ],
             'bio' => 'nullable|string|max:1000',
             'skill' => 'nullable|string|max:255',
             'school' => 'nullable|string|max:255',
@@ -80,12 +96,13 @@ class ProfileController extends Controller
 
         $user->update([
             'username' => $request->username,
+            'whatsapp' => $request->whatsapp,
             'bio' => $request->bio,
             'skill' => $request->skill,
             'school' => $request->school,
         ]);
 
-        //update session username juga
+        // Update session username juga
         session([
             'username' => $user->username
         ]);
